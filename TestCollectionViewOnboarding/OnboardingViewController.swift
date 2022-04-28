@@ -32,14 +32,9 @@ class OnboardingViewController: UIViewController {
         if currentPage != 0 {
             currentPage -= 1
             let indexPath = IndexPath(item: currentPage, section: 0)
-			// instead of this
-			//collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+			// disable scrollViewDidScroll code execution
 			self.programmedScroll = true
-			UIView.animate(withDuration: 0.3, animations: {
-				self.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
-			}, completion: { _ in
-				self.programmedScroll = false
-			})
+			collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     
@@ -49,14 +44,9 @@ class OnboardingViewController: UIViewController {
         } else {
             currentPage += 1
             let indexPath = IndexPath(item: currentPage, section: 0)
-			// instead of this
-			//collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+			// disable scrollViewDidScroll code execution
 			self.programmedScroll = true
-			UIView.animate(withDuration: 0.3, animations: {
-				self.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
-			}, completion: { _ in
-				self.programmedScroll = false
-			})
+			collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     
@@ -95,13 +85,18 @@ extension OnboardingViewController: UICollectionViewDelegate, UICollectionViewDa
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		// don't execute this if WE called scrollToItem
 		if !programmedScroll {
 			let visibleRectangle = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
 			let visiblePoint = CGPoint(x: visibleRectangle.midX, y: visibleRectangle.midY)
 			currentPage = collectionView.indexPathForItem(at: visiblePoint)?.row ?? 0
 		}
     }
-    
+	func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+		// re-enable execution of scrollViewDidScroll code
+		programmedScroll = false
+	}
+	
     override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
         collectionView.collectionViewLayout.invalidateLayout()
 
